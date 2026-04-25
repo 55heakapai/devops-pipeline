@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'Java25'
+    }
+
     environment {
         EC2_USER = 'ec2-user'
         EC2_HOST = '3.110.172.106'
@@ -19,7 +23,7 @@ pipeline {
 
         stage('Build') {
             steps {
-               bat '"G:\\apache-maven-3.9.15\\bin\\mvn.cmd" clean install -DskipTests'
+                bat '"G:\\apache-maven-3.9.15\\bin\\mvn.cmd" clean install -DskipTests'
             }
         }
 
@@ -33,11 +37,11 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
-                    bat '''
+                    bat """
                         ssh -o StrictHostKeyChecking=no %EC2_USER%@%EC2_HOST% "mkdir -p %DEPLOY_DIR%"
                         ssh -o StrictHostKeyChecking=no %EC2_USER%@%EC2_HOST% "pkill -f %JAR_NAME% || true"
                         scp -o StrictHostKeyChecking=no target/%JAR_NAME% %EC2_USER%@%EC2_HOST%:%DEPLOY_DIR%/%JAR_NAME%
-                    '''
+                    """
                 }
             }
         }
@@ -45,9 +49,9 @@ pipeline {
         stage('Start Service on EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
-                    bat '''
+                    bat """
                         ssh -o StrictHostKeyChecking=no %EC2_USER%@%EC2_HOST% "nohup java -jar %DEPLOY_DIR%/%JAR_NAME% --spring.profiles.active=prod > %DEPLOY_DIR%/app.log 2>&1 &"
-                    '''
+                    """
                 }
             }
         }
