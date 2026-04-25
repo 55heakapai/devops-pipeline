@@ -10,7 +10,7 @@ pipeline {
         EC2_HOST = '3.110.172.106'
         JAR_NAME = 'devops-0.0.1-SNAPSHOT.jar'
         DEPLOY_DIR = '/home/ec2-user/app'
-        PEM_FILE = 'F:\\Downloads\\devops-key (1).pem'
+       PEM_FILE = 'C:\\ProgramData\\Jenkins\\.jenkins\\devops-key.pem'
     }
 
     stages {
